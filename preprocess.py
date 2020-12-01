@@ -47,12 +47,12 @@ def get_all_data(file):
         all_data[i][1] = all_data[i][1].split(",")
         all_data[i][2] = all_data[i][2].split()
         all_data[i][3] = all_data[i][3].split()
+        all_data[i][3].append(all_data[i][4])
         all_data[i] = [
             all_data[i][0],
             all_data[i][1],
             all_data[i][2],
             all_data[i][3],
-            all_data[i][4],
         ]
         # Creating a dictionary mapping words to word counts, to be used for unkING later on
         for j in range(2, 4):
