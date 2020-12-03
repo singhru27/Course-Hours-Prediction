@@ -4,6 +4,12 @@ from functools import reduce
 import csv
 import random
 
+##########DO NOT CHANGE EXCEPT BY RUJUL#####################
+PAD_TOKEN = "*PAD*"
+UNK_TOKEN = "*UNK*"
+WINDOW_SIZE = 50
+##########DO NOT CHANGE EXCEPT BY RUJUL#####################
+
 
 def get_all_data(file):
     """
@@ -22,6 +28,7 @@ def get_all_data(file):
         for row in datareader:
             all_data.append(row)
     dict = {}
+    max_length = 0
 
     # Separating all punctuation in the dataset. Creating a list of words for each entry field for each datapoint
     all_data = all_data[2:]
@@ -66,7 +73,7 @@ def get_all_data(file):
         for j in range(2, 4):
             for k in range(len(all_data[i][j])):
                 if dict[all_data[i][j][k]] < 2:
-                    all_data[i][j][k] = "UNK"
+                    all_data[i][j][k] = UNK_TOKEN
     data_id = {}
     id = 0
     # Creating a vocabulary dictionary, mapping from words to their ids
@@ -106,6 +113,19 @@ def split_data(all_data):
     train_data = all_data[0:num_in_train]
     test_data = all_data[num_in_train:num_elements]
     return (train_data, test_data)
+
+
+def pad_data(all_data):
+    """
+    Pads the dataset according to the window size
+    Parameters:
+        - all_data: The full dataset with all the text
+    Returns:
+        - padded_data: The dataset shortened to window size
+    """
+    for i in range(len(all_data)):
+        
+    pass
 
 
 if __name__ == "__main__":
