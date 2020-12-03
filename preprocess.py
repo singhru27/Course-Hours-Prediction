@@ -31,6 +31,7 @@ def get_all_data(file):
 
     # Separating all punctuation in the dataset. Creating a list of words for each entry field for each datapoint
     all_data = all_data[2:]
+    random.shuffle(all_data)
     labels_list = []
     for i in range(len(all_data)):
         all_data[i][1] = str(all_data[i][1]).lower()
@@ -62,7 +63,7 @@ def get_all_data(file):
             all_data[i][3],
         ]
         # Creating a dictionary mapping words to word counts, to be used for UNKing later on
-        for j in range(1, 4):
+        for j in range(0, 3):
             for word in all_data[i][j]:
                 if (word in dict) == False:
                     dict[word] = 0
@@ -70,7 +71,7 @@ def get_all_data(file):
                     dict[word] = dict[word] + 1
     # UNKing the words in the dataset
     for i in range(len(all_data)):
-        for j in range(1, 4):
+        for j in range(0, 3):
             for k in range(len(all_data[i][j])):
                 if dict[all_data[i][j][k]] < 2:
                     all_data[i][j][k] = UNK_TOKEN
@@ -88,7 +89,7 @@ def build_vocab(all_data):
     id_num = 0
     vocab_dict = {}
     for i in range(len(all_data)):
-        for j in range(1, 4):
+        for j in range(0, 3):
             for word in all_data[i][j]:
                 if word not in vocab_dict:
                     vocab_dict[word] = id_num
@@ -105,7 +106,7 @@ def convert_to_id(all_data, vocab_dict):
     """
     # Converting all words to their corresponding IDs
     for i in range(len(all_data)):
-        for j in range(1, 4):
+        for j in range(0, 3):
             word_list = []
             for word in all_data[i][j]:
                 if word not in vocab_dict:
@@ -117,7 +118,7 @@ def convert_to_id(all_data, vocab_dict):
     return all_data
 
 
-def split_data(all_data):
+def split_data(all_data, labels):
     """
     Splits the entire set of data into a training set and a testing set
     Parameters:
@@ -129,12 +130,15 @@ def split_data(all_data):
     num_elements = len(all_data)
     train_percentage = 0.8
     test_percentage = 0.2
-    random.shuffle(all_data)
+
     # Creating the train and test datasets, in list form
     num_in_train = int(train_percentage * num_elements)
     train_data = all_data[0:num_in_train]
+    train_labels = labels[0:num_in_train]
     test_data = all_data[num_in_train:num_elements]
-    return (train_data, test_data)
+    test_labels = labels[num_in_train:num_elements]
+
+    return (train_data, train_labels, test_data, test_labels)
 
 
 def pad_data(parsed_data):
@@ -149,7 +153,7 @@ def pad_data(parsed_data):
 
     for i in range(len(parsed_data)):
         # Skipping the first column, since it has the average hours (what we are trying to predict)
-        for j in range(1, len(parsed_data[0])):
+        for j in range(0, len(parsed_data[0])):
             parsed_data[i][j] = parsed_data[i][j][0:WINDOW_SIZE]
             parsed_data[i][j] = parsed_data[i][j] + [PAD_TOKEN] * (
                 WINDOW_SIZE - len(parsed_data[i][j])
@@ -157,7 +161,7 @@ def pad_data(parsed_data):
     return parsed_data
 
 
-def convert_to_numpy(data_id):
+def convert_to_numpy(data_id, data_labels):
     """
     Converts data in list form to NumPy array
     Parameters:
@@ -165,28 +169,32 @@ def convert_to_numpy(data_id):
     Returns:
         - data_text[1->3]: All the text
     """
-    labels = np.array(data_id)[:, 0]
-    data_id = data_id[1:]
+    labels = np.array(data_labels)
     data_id = np.array(data_id)
-    print(data_id.shape)
-    text_1 = data_id[:, 1]
-    text_2 = data_id[:, 2]
-    text_3 = data_id[:, 3]
+    text_1 = data_id[:, 0]
+    text_2 = data_id[:, 1]
+    text_3 = data_id[:, 2]
     return labels, text_1, text_2, text_3
 
 
 def preprocess_data(filepath):
-    pass
-
-
-if __name__ == "__main__":
-    (labels,) = get_all_data("2020-2019 Review Data.csv")
+    """
+    """
+    labels, all_data = get_all_data(filepath)
     all_data = pad_data(all_data)
-    train_data, test_data = split_data(all_data)
+    train_data, train_labels, test_data, test_labels = split_data(all_data, labels)
     vocab_dict = build_vocab(train_data)
     train_data_id = convert_to_id(train_data, vocab_dict)
     test_data_id = convert_to_id(test_data, vocab_dict)
+
     train_labels, train_text1, train_text2, train_text3 = convert_to_numpy(
-        train_data_id
+        train_data_id, train_labels
     )
-    print(train_text1.shape)
+    test_labels, test_text1, test_text2, test_text3 = convert_to_numpy(
+        test_data_id, test_labels
+    )
+
+    return train_labels, train_text1, train_text2, train_text3, test_labels, test_text1, test_text2, test_text3
+
+
+if __name__ == "__main__":
