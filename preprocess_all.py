@@ -10,7 +10,6 @@ PAD_TOKEN = "*PAD*"
 UNK_TOKEN = "*UNK*"
 WINDOW_SIZE = 125
 ########## DO NOT CHANGE EXCEPT BY RUJUL #####################
-
 random.seed(1)
 
 

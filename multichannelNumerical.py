@@ -7,8 +7,8 @@ class multichannel_numerical(tf.keras.Model):
         super(multichannel_numerical, self).__init__()
         # Defining the hyperparameters
         self.batch_size = 100
-        self.embedding_size = 60
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
+        self.embedding_size = 100
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001)
         self.vocab_size = vocab_size
         self.window_size = window_size
 

@@ -8,7 +8,7 @@ class RNN_multichannel_dropout(tf.keras.Model):
         # Defining the hyperparameters
         self.batch_size = 100
         self.embedding_size = 60
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
         self.vocab_size = vocab_size
         self.window_size = window_size
 

@@ -13,7 +13,7 @@ from multichannelNumerical import multichannel_numerical
 ########## DO NOT CHANGE EXCEPT BY RUJUL #####################
 WINDOW_SIZE = 125
 EPOCHS = 15
-NUMERICAL_EPOCHS = 15
+NUMERICAL_EPOCHS = 5
 ########## DO NOT CHANGE EXCEPT BY RUJUL #####################
 
 random.seed(0)
@@ -186,7 +186,7 @@ def main():
             test_text2,
             test_text3,
             vocab_dict,
-        ) = preprocess_data("2020-2019 Review Data.csv")
+        ) = preprocess_data("2020-2019 Numerical Review Data.csv")
         VOCAB_SIZE = len(vocab_dict.keys())
         print("Preprocessing complete.")
         model = RNN_multichannel(WINDOW_SIZE, VOCAB_SIZE)
@@ -247,6 +247,7 @@ def main():
         model = multichannel_numerical(WINDOW_SIZE, VOCAB_SIZE)
         # Training for EPOCH number of iterations
         for i in range(NUMERICAL_EPOCHS):
+            print(i)
             train_numerical(
                 model,
                 train_labels,
