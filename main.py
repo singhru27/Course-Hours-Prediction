@@ -8,10 +8,12 @@ import sys
 import random
 from multichannelRNNmodel import RNN_multichannel
 from multichannelRNNmodelDropout import RNN_multichannel_dropout
+from multichannelNumerical import multichannel_numerical
 
 ########## DO NOT CHANGE EXCEPT BY RUJUL #####################
 WINDOW_SIZE = 125
 EPOCHS = 15
+NUMERICAL_EPOCHS = 15
 ########## DO NOT CHANGE EXCEPT BY RUJUL #####################
 
 random.seed(0)
@@ -136,7 +138,7 @@ def test(model, test_labels, test_text1, test_text2, test_text3):
     return sum(mse) / num_batches
 
 
-def test_numerical_data(
+def test_numerical(
     model, test_labels, test_text1, test_text2, test_text3, test_numerical_data
 ):
     batch_size = model.batch_size
@@ -208,9 +210,10 @@ def main():
             test_text2,
             test_text3,
             vocab_dict,
-        ) = preprocess_data("2020-2019 Review Data.csv")
+        ) = preprocess_data("2020-2019 Numerical Review Data.csv")
         VOCAB_SIZE = len(vocab_dict.keys())
         print("Preprocessing complete.")
+
         model = RNN_multichannel_dropout(WINDOW_SIZE, VOCAB_SIZE)
         # Training for EPOCH number of iterations
         for i in range(EPOCHS):
@@ -237,10 +240,14 @@ def main():
         ) = preprocess_data_numerical("2020-2019 Numerical Review Data.csv")
         VOCAB_SIZE = len(vocab_dict.keys())
         print("Preprocessing complete.")
+        ################################################################################################
+
+        ################################v################################################################################################
+        # Creating the model
+        model = multichannel_numerical(WINDOW_SIZE, VOCAB_SIZE)
         # Training for EPOCH number of iterations
-        for i in range(EPOCHS):
-            print(i)
-            train_numerical_data(
+        for i in range(NUMERICAL_EPOCHS):
+            train_numerical(
                 model,
                 train_labels,
                 train_text1,
@@ -250,7 +257,7 @@ def main():
             )
         print(
             "Final Loss",
-            test_numerical_data(
+            test_numerical(
                 model,
                 test_labels,
                 test_text1,

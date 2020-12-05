@@ -34,6 +34,7 @@ def get_all_data(file):
     all_data = all_data[2:]
     random.shuffle(all_data)
     labels_list = []
+    numerical_list = []
     for i in range(len(all_data)):
         all_data[i][1] = str(all_data[i][1]).lower()
         all_data[i][2] = str(all_data[i][2]).lower()
@@ -61,9 +62,10 @@ def get_all_data(file):
         for j in range(4, 19):
             numerical_data.append(all_data[i][j])
         numerical_data = np.array(numerical_data, dtype=np.float32)
+        numerical_list.append(numerical_data)
         # Adding the labels to the label list
         labels_list.append(all_data[i][0])
-        all_data[i] = [all_data[i][1], all_data[i][2], all_data[i][3], numerical_data]
+        all_data[i] = [all_data[i][1], all_data[i][2], all_data[i][3]]
         # Creating a dictionary mapping words to word counts, to be used for UNKing later on
         for j in range(0, 3):
             for word in all_data[i][j]:
@@ -77,7 +79,7 @@ def get_all_data(file):
             for k in range(len(all_data[i][j])):
                 if dict[all_data[i][j][k]] < 2:
                     all_data[i][j][k] = UNK_TOKEN
-    return labels_list, all_data
+    return labels_list, all_data, numerical_list
 
 
 def build_vocab(all_data):
@@ -120,7 +122,7 @@ def convert_to_id(all_data, vocab_dict):
     return all_data
 
 
-def split_data(all_data, labels):
+def split_data(all_data, numerical_data, labels):
     """
     Splits the entire set of data into a training set and a testing set
     Parameters:
@@ -136,11 +138,20 @@ def split_data(all_data, labels):
     # Creating the train and test datasets, in list form
     num_in_train = int(train_percentage * num_elements)
     train_data = all_data[0:num_in_train]
+    train_numerical_data = numerical_data[0:num_in_train]
     train_labels = labels[0:num_in_train]
     test_data = all_data[num_in_train:num_elements]
+    test_numerical_data = numerical_data[num_in_train:num_elements]
     test_labels = labels[num_in_train:num_elements]
 
-    return (train_data, train_labels, test_data, test_labels)
+    return (
+        train_data,
+        train_numerical_data,
+        train_labels,
+        test_data,
+        test_numerical_data,
+        test_labels,
+    )
 
 
 def pad_data(parsed_data):
@@ -162,7 +173,7 @@ def pad_data(parsed_data):
     return parsed_data
 
 
-def convert_to_numpy(data_id, data_labels):
+def convert_to_numpy(data_id, data_numerical, data_labels):
     """
     Converts data in list form to NumPy array
     Parameters:
@@ -175,7 +186,7 @@ def convert_to_numpy(data_id, data_labels):
     text_1 = data_id[:, 0]
     text_2 = data_id[:, 1]
     text_3 = data_id[:, 2]
-    numerical_data = data_id[:, 3]
+    numerical_data = np.array(data_numerical, dtype=np.float32)
     return labels, text_1, text_2, text_3, numerical_data
 
 
@@ -187,9 +198,16 @@ def preprocess_data_numerical(filepath):
     Returns:
         - train_labels, train_text1, train_text2, train_text3, test_labels, test_text1, test_text2, test_text3, vocab_dict
     """
-    labels, all_data = get_all_data(filepath)
+    labels, all_data, numerical_data = get_all_data(filepath)
     all_data = pad_data(all_data)
-    train_data, train_labels, test_data, test_labels = split_data(all_data, labels)
+    (
+        train_data,
+        train_numerical_data,
+        train_labels,
+        test_data,
+        test_numerical_data,
+        test_labels,
+    ) = split_data(all_data, numerical_data, labels)
     vocab_dict = build_vocab(train_data)
     train_data_id = convert_to_id(train_data, vocab_dict)
     test_data_id = convert_to_id(test_data, vocab_dict)
@@ -199,14 +217,14 @@ def preprocess_data_numerical(filepath):
         train_text2,
         train_text3,
         train_numerical_data,
-    ) = convert_to_numpy(train_data_id, train_labels)
+    ) = convert_to_numpy(train_data_id, train_numerical_data, train_labels)
     (
         test_labels,
         test_text1,
         test_text2,
         test_text3,
         test_numerical_data,
-    ) = convert_to_numpy(test_data_id, test_labels)
+    ) = convert_to_numpy(test_data_id, test_numerical_data, test_labels)
     return (
         train_labels,
         train_text1,

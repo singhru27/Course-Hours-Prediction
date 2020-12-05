@@ -2,13 +2,13 @@ import numpy as np
 import tensorflow as tf
 
 
-class RNN_multichannel_dropout(tf.keras.Model):
+class multichannel_numerical(tf.keras.Model):
     def __init__(self, window_size, vocab_size):
-        super(RNN_multichannel_dropout, self).__init__()
+        super(multichannel_numerical, self).__init__()
         # Defining the hyperparameters
         self.batch_size = 100
         self.embedding_size = 60
-        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.001)
         self.vocab_size = vocab_size
         self.window_size = window_size
 
@@ -35,8 +35,13 @@ class RNN_multichannel_dropout(tf.keras.Model):
         # Output layer
         self.concat_regress = tf.keras.layers.Dense(1)
 
+        ############################### Layers for numerical ########################
+        # First dense layer
+        self.numerical_dense1 = tf.keras.layers.Dense(100, activation="relu")
+        self.numerical_dense2 = tf.keras.layers.Dense(50, activation="relu")
+
     @tf.function
-    def call(self, text_col1, text_col2, text_col3, is_test=False):
+    def call(self, text_col1, text_col2, text_col3, numerical_data, is_test=False):
         # Creating embedding table. Size of (BATCH_SZ, SENTENCE_LENGTH, EMBEDDING_SZ)
         embedded_text_col1 = tf.nn.embedding_lookup(self.embedding_matrix, text_col1)
         embedded_text_col2 = tf.nn.embedding_lookup(self.embedding_matrix, text_col2)
@@ -58,9 +63,19 @@ class RNN_multichannel_dropout(tf.keras.Model):
         text1_dense2_output = self.text1_dense2(text1_dense1_output)
         text2_dense2_output = self.text2_dense2(text2_dense1_output)
         text3_dense2_output = self.text3_dense2(text3_dense1_output)
-        # Concatenation of the three different outputs into a single output
+        ########################## Numerical Calls #########################################
+        numerical_dense1_output = self.numerical_dense1(numerical_data)
+        numerical_dense2_output = self.numerical_dense2(numerical_dense1_output)
+        ####################################################################################
+        # Concatenation of the four different outputs into a single output
         concatenation = tf.concat(
-            [text1_dense2_output, text2_dense2_output, text3_dense2_output], axis=1
+            [
+                text1_dense2_output,
+                text2_dense2_output,
+                text3_dense2_output,
+                numerical_dense2_output,
+            ],
+            axis=1,
         )
         # Putting through the third dense layer
         concatenated_output = self.concat_dense(concatenation)
