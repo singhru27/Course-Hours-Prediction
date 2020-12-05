@@ -56,12 +56,14 @@ def get_all_data(file):
         all_data[i][1] = all_data[i][1].split(",")
         all_data[i][2] = all_data[i][2].split()
         all_data[i][3] = all_data[i][3].split()
+        # Adding all the numerical data into the dataset
+        numerical_data = []
+        for j in range(4, 19):
+            numerical_data.append(all_data[i][j])
+        numerical_data = np.array(numerical_data, dtype=np.float32)
+        # Adding the labels to the label list
         labels_list.append(all_data[i][0])
-        all_data[i] = [
-            all_data[i][1],
-            all_data[i][2],
-            all_data[i][3],
-        ]
+        all_data[i] = [all_data[i][1], all_data[i][2], all_data[i][3], numerical_data]
         # Creating a dictionary mapping words to word counts, to be used for UNKing later on
         for j in range(0, 3):
             for word in all_data[i][j]:
@@ -152,8 +154,7 @@ def pad_data(parsed_data):
     """
 
     for i in range(len(parsed_data)):
-        # Skipping the first column, since it has the average hours (what we are trying to predict)
-        for j in range(0, len(parsed_data[0])):
+        for j in range(0, 3):
             parsed_data[i][j] = parsed_data[i][j][0:WINDOW_SIZE]
             parsed_data[i][j] = parsed_data[i][j] + [PAD_TOKEN] * (
                 WINDOW_SIZE - len(parsed_data[i][j])
@@ -174,10 +175,11 @@ def convert_to_numpy(data_id, data_labels):
     text_1 = data_id[:, 0]
     text_2 = data_id[:, 1]
     text_3 = data_id[:, 2]
-    return labels, text_1, text_2, text_3
+    numerical_data = data_id[:, 3]
+    return labels, text_1, text_2, text_3, numerical_data
 
 
-def preprocess_data(filepath):
+def preprocess_data_numerical(filepath):
     """
     Returns the processed data and labels
     Parameters:
@@ -191,24 +193,30 @@ def preprocess_data(filepath):
     vocab_dict = build_vocab(train_data)
     train_data_id = convert_to_id(train_data, vocab_dict)
     test_data_id = convert_to_id(test_data, vocab_dict)
-    train_labels, train_text1, train_text2, train_text3 = convert_to_numpy(
-        train_data_id, train_labels
-    )
-    test_labels, test_text1, test_text2, test_text3 = convert_to_numpy(
-        test_data_id, test_labels
-    )
+    (
+        train_labels,
+        train_text1,
+        train_text2,
+        train_text3,
+        train_numerical_data,
+    ) = convert_to_numpy(train_data_id, train_labels)
+    (
+        test_labels,
+        test_text1,
+        test_text2,
+        test_text3,
+        test_numerical_data,
+    ) = convert_to_numpy(test_data_id, test_labels)
     return (
         train_labels,
         train_text1,
         train_text2,
         train_text3,
+        train_numerical_data,
         test_labels,
         test_text1,
         test_text2,
         test_text3,
+        test_numerical_data,
         vocab_dict,
     )
-
-
-if __name__ == "__main__":
-    model = RNN_multichannel()
