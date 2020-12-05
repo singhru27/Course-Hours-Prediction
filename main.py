@@ -113,7 +113,32 @@ def train_numerical(
         print(loss)
 
 
-def test(model, test_labels, test_text1, test_text2, test_text3, test_numerical_data):
+def test(model, test_labels, test_text1, test_text2, test_text3):
+    batch_size = model.batch_size
+    num_examples = len(test_labels)
+    mse = []
+    # Iterating through the matches
+    num_batches = num_examples // batch_size
+    for i in range(num_batches):
+        batched_test_labels = test_labels[i * batch_size : (i + 1) * batch_size]
+        batched_test_text1 = test_text1[i * batch_size : (i + 1) * batch_size]
+        batched_test_text2 = test_text2[i * batch_size : (i + 1) * batch_size]
+        batched_test_text3 = test_text3[i * batch_size : (i + 1) * batch_size]
+
+        predictions = model.call(
+            batched_test_text1,
+            batched_test_text2,
+            batched_test_text3,
+            is_test=True,
+        )
+        loss = model.loss_function(predictions, batched_test_labels)
+        mse.append(loss)
+    return sum(mse) / num_batches
+
+
+def test_numerical_data(
+    model, test_labels, test_text1, test_text2, test_text3, test_numerical_data
+):
     batch_size = model.batch_size
     num_examples = len(test_labels)
     mse = []
@@ -215,7 +240,7 @@ def main():
         # Training for EPOCH number of iterations
         for i in range(EPOCHS):
             print(i)
-            train(
+            train_numerical_data(
                 model,
                 train_labels,
                 train_text1,
@@ -225,7 +250,7 @@ def main():
             )
         print(
             "Final Loss",
-            test(
+            test_numerical_data(
                 model,
                 test_labels,
                 test_text1,
