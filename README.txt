@@ -1,4 +1,9 @@
-README:
+
+
+Overview:
+A series of three neural networks built using the TensorFlow library to predict average hours per week for various courses at Brown University, based off of student responses to end-of-semester questionnaires. 
+
+Run Instructions:
 
 Use python3 main.py RNN to run the base multichannel RNN model 
 

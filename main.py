@@ -162,6 +162,7 @@ def test_numerical(
             batched_test_numerical_data,
             is_test=True,
         )
+        print(predictions)
         loss = model.loss_function(predictions, batched_test_labels)
         mse.append(loss)
     return sum(mse) / num_batches
