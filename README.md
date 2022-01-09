@@ -23,8 +23,13 @@ This project is completed
 
 #### Example:   
 
-![ScreenShot](https://github.com/singhru27/Course-Hours-Prediction
-/blob/main/screenshots/Default.png?raw=true)
+To see the project in action, please visit 
+
+https://thecriticalreview.org/
+
+A screenshot of the program output is below
+
+![ScreenShot](https://github.com/singhru27/Course-Hours-Prediction/blob/main/screenshots/Default.png?raw=true)
 
 
 ## Installation and Setup Instructions
