@@ -29,7 +29,7 @@ https://thecriticalreview.org/
 
 A screenshot of the program output is below
 
-![ScreenShot](https://github.com/singhru27/Course-Hours-Prediction/blob/main/screenshots/Default.png?raw=true)
+![ScreenShot](https://github.com/singhru27/Course-Hours-Prediction/blob/master/screenshots/Default.png)
 
 
 ## Installation and Setup Instructions
